@@ -7,25 +7,28 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from 'vue'
-import {
-  Viewer
-} from 'cesium'
+import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
+import { Viewer } from 'cesium'
 
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 
+import { creditContainerKey } from '@/components/layout/credit'
+import { applySharedView } from '@/composables/useCameraTools'
+import { useSceneStore } from '@/stores/scene'
 import { useViewerStore } from '@/stores/viewer'
 
 const container = ref<HTMLElement | null>(null)
+const creditContainer = inject(creditContainerKey, null)
 
 const viewerStore = useViewerStore()
+const sceneStore = useSceneStore()
 
 let viewer: Viewer | undefined
 
 onMounted(async () => {
   if (!container.value) return
 
-  // 如果使用 Cesium ion token，可以在这里设置
+  // 如果使用 Cesium ion token，可在此设置；底图面板会按需读取环境变量
   // Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_TOKEN
 
   viewer = new Viewer(container.value, {
@@ -39,14 +42,25 @@ onMounted(async () => {
     fullscreenButton: false,
     infoBox: false,
     selectionIndicator: false,
+    // 由底图面板接管底图，避免加载默认的 Ion 影像
+    baseLayer: false,
+    ...(creditContainer ? { creditContainer } : {}),
   })
 
   viewerStore.setViewer(viewer)
+  sceneStore.bindViewer(viewer)
 
-  viewer.camera.flyHome(0)
+  if (!applySharedView(viewer)) viewer.camera.flyHome(0)
+
+  try {
+    await sceneStore.applyBasemap(sceneStore.basemap)
+  } catch (error) {
+    console.warn('[CesiumViewer] 初始底图加载失败：', error)
+  }
 })
 
 onBeforeUnmount(() => {
+  sceneStore.unbindViewer()
   viewerStore.destroyViewer()
   viewer = undefined
 })

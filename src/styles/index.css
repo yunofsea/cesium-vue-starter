@@ -1,5 +1,85 @@
 @import "tailwindcss";
 
+/* dark: 前缀跟随 html.dark，而不是系统偏好 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+
+  --ui-bg: #eef1f5;
+  --ui-toolbar: #ffffff;
+  --ui-rail: #f5f6f8;
+  --ui-statusbar: #f1f3f6;
+
+  --ui-surface: #ffffff;
+  --ui-surface-raised: #f8f9fb;
+  --ui-surface-translucent: rgba(255, 255, 255, 0.94);
+
+  --ui-border: #e2e6ec;
+  --ui-control-border: #8d95a1;
+
+  --ui-text-1: #1f2733;
+  --ui-text-2: #5a6472;
+  --ui-text-inverse: #ffffff;
+
+  --ui-accent: #2f6fed;
+  --ui-accent-solid: #2f6fed;
+  --ui-accent-soft: rgba(47, 111, 237, 0.1);
+  --ui-hover: rgba(31, 39, 51, 0.06);
+
+  --ui-shadow: 0 10px 30px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.08);
+  --ui-mask: rgba(15, 23, 42, 0.35);
+  --ui-danger: #c0392b;
+
+  --el-color-primary: var(--ui-accent-solid);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --ui-bg: #12161f;
+  --ui-toolbar: #1b212c;
+  --ui-rail: #151a23;
+  --ui-statusbar: #151a23;
+
+  --ui-surface: #232a37;
+  --ui-surface-raised: #2b3341;
+  --ui-surface-translucent: rgba(35, 42, 55, 0.92);
+
+  --ui-border: #333c4b;
+  --ui-control-border: #6b7a94;
+
+  --ui-text-1: #e9eef7;
+  --ui-text-2: #aeb9c9;
+  --ui-text-inverse: #10151d;
+
+  --ui-accent: #7aa7ff;
+  --ui-accent-solid: #2f6fed;
+  --ui-accent-soft: rgba(122, 167, 255, 0.16);
+  --ui-hover: rgba(233, 238, 247, 0.08);
+
+  --ui-shadow: 0 12px 34px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --ui-mask: rgba(0, 0, 0, 0.5);
+  --ui-danger: #ff7b72;
+
+  --el-color-primary: var(--ui-accent-solid);
+}
+
+@theme inline {
+  --color-ui-bg: var(--ui-bg);
+  --color-ui-toolbar: var(--ui-toolbar);
+  --color-ui-rail: var(--ui-rail);
+  --color-ui-status: var(--ui-statusbar);
+  --color-ui-surface: var(--ui-surface);
+  --color-ui-raised: var(--ui-surface-raised);
+  --color-ui-border: var(--ui-border);
+  --color-ui-control: var(--ui-control-border);
+  --color-ui-text: var(--ui-text-1);
+  --color-ui-muted: var(--ui-text-2);
+  --color-ui-accent: var(--ui-accent);
+  --color-ui-hover: var(--ui-hover);
+}
+
 html,
 body,
 #app {
@@ -7,4 +87,124 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+body {
+  overflow: hidden;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ui-text-1);
+  background: var(--ui-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 2px;
+}
+
+/* 顶栏按钮：小屏只显示图标，1280px 以上显示文字 */
+.tool-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--ui-text-1);
+  background: transparent;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.tool-button:hover:not(:disabled) {
+  background: var(--ui-hover);
+}
+
+.tool-button.is-active {
+  color: var(--ui-accent);
+  background: var(--ui-accent-soft);
+}
+
+.tool-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tool-button__label {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .tool-button__label {
+    display: inline;
+  }
+}
+
+/* 面板滚动条 */
+.ui-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ui-border) transparent;
+}
+
+/* Cesium 铺满内容区，工具栏与浮层在其上方 */
+.cesium-viewer {
+  position: absolute;
+  inset: 0;
+}
+
+.cesium-viewer-bottom {
+  display: none;
+}
+
+/* 版权信息挂载到状态栏，需覆盖 Cesium 的绝对定位 */
+.cesium-credit-host {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  overflow: hidden;
+}
+
+.cesium-credit-host .cesium-widget-credits {
+  position: static;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  font-size: 11px;
+  color: var(--ui-text-2);
+}
+
+.cesium-credit-host .cesium-widget-credits a,
+.cesium-credit-host .cesium-credit-expand-link {
+  color: var(--ui-text-2) !important;
+  text-decoration: none;
+}
+
+.cesium-credit-host .cesium-widget-credits a:hover,
+.cesium-credit-host .cesium-credit-expand-link:hover {
+  color: var(--ui-accent) !important;
+  text-decoration: underline;
+}
+
+.dark .cesium-credit-host img {
+  filter: brightness(1.7) contrast(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
