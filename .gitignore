@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# 依赖统一使用 npm（package-lock.json），忽略其他包管理器的锁文件
+pnpm-lock.yaml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
